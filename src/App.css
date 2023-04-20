@@ -1,5 +1,8 @@
 .App {
   text-align: center;
+  position: fixed;
+  top: 0;
+  left: 15vw;
 }
 
 .App-logo {
@@ -38,7 +41,6 @@
 }
 
 .leaflet-container {
-  margin-left: 15vw;
   width: 85vw;
   height: 100vh;
 }
