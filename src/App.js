@@ -42,7 +42,7 @@ function App() {
 
   return (
     <div className="App">
-      <Map ref={mapRef} center={[39.50, -98.35]} zoom={4}>
+      <Map ref={mapRef} center={[38.62, -90.185]} zoom={15} scrollWheelZoom={false} doubleClickZoom={false} zoomControl={false} dragging={false}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; <a href=&quot;https://www.openstreetmap.org/copyright&quot;>OpenStreetMap</a> contributors" />
       </Map>
     </div>
