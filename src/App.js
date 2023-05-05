@@ -4,7 +4,12 @@ import { Map, TileLayer } from 'react-leaflet';
 import './App.css';
 import 'leaflet/dist/leaflet.css';
 
-import nationalParks from './national-parks.json';
+import cemetery from './geoJson/cemetery.json';
+import museums from './geoJson/museums.json';
+import nationalParks from './geoJson/national parks.json';
+import outdoorActivities from './geoJson/outdoor activities.json';
+import trails from './geoJson/trails.json';
+import Sidebar from "./components/Sidebar";
 
 delete L.Icon.Default.prototype._getIconUrl;
 
@@ -18,6 +23,8 @@ delete L.Icon.Default.prototype._getIconUrl;
  });
 
 function App() {
+
+
   const mapRef = useRef();
 
   useEffect(() => {
@@ -26,23 +33,55 @@ function App() {
 
     if ( !map ) return;
 
-    const parksGeoJson = new L.GeoJSON(nationalParks, {
-      onEachFeature: (feature = {}, layer) => {
-        const { properties = {} } = feature;
-        const { Name } = properties;
+    // Helper function to create GeoJSON layers
+    const createGeoJsonLayer = (geoJsonData) => {
+      return new L.GeoJSON(geoJsonData, {
+        onEachFeature: (feature = {}, layer) => {
+          const { properties = {} } = feature;
+          const { adr_address, name, photos = [] } = properties;
+          let photo_reference = null;
+          if (photos && photos.length > 0) {
+            photo_reference = photos[0].photo_reference;
+            //console.log(photo_reference);
+          } else {
+            console.log('No photos available');
+          }
+          if (!name) return;
 
-        if ( !Name ) return;
+          layer.bindPopup(`<p>${name}</p><p>${adr_address}</p>${createPhotoHtml(photo_reference)}`);
+        },
+      });
+    };
 
-        layer.bindPopup(`<p>${Name}</p>`);
-      }
-    });
+    // Helper function to create photo HTML
+    const createPhotoHtml = (photoReference) => {
+      if (!photoReference) return '';
 
+      const imageUrl = `${photoReference}`;
+      //console.log(imageUrl);
+      return `<img src="${imageUrl}" alt="" style="width: 100%; max-height: 200px;" />`;
+    };
+
+    // Create GeoJSON layers
+    const parksGeoJson = createGeoJsonLayer(nationalParks, createPhotoHtml);
+    const cemeteryGeoJson = createGeoJsonLayer(cemetery, createPhotoHtml);
+    const museumsGeoJson = createGeoJsonLayer(museums, createPhotoHtml);
+    const outdoorActivitiesGeoJson = createGeoJsonLayer(outdoorActivities, createPhotoHtml);
+    const trailsGeoJson = createGeoJsonLayer(trails, createPhotoHtml);
+
+    // Add GeoJSON layers to the map
     parksGeoJson.addTo(map);
+    cemeteryGeoJson.addTo(map);
+    museumsGeoJson.addTo(map);
+    outdoorActivitiesGeoJson.addTo(map);
+    trailsGeoJson.addTo(map);
   }, [])
 
   return (
+
     <div className="App">
-      <Map ref={mapRef} center={[38.62, -90.185]} zoom={15} scrollWheelZoom={false} doubleClickZoom={false} zoomControl={false} dragging={false}>
+      <Sidebar/>
+      <Map ref={mapRef} center={[38.62, -90.185]} zoom={12} maxZoom={17} minZoom={11}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution="&copy; <a href=&quot;https://www.openstreetmap.org/copyright&quot;>OpenStreetMap</a> contributors" />
       </Map>
     </div>
