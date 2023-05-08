@@ -38,20 +38,62 @@ function App() {
       return new L.GeoJSON(geoJsonData, {
         onEachFeature: (feature = {}, layer) => {
           const { properties = {} } = feature;
-          const { adr_address, name, photos = [] } = properties;
+          const { adr_address, name, photos = [], opening_hours } = properties;
           let photo_reference = null;
           if (photos && photos.length > 0) {
             photo_reference = photos[0].photo_reference;
-            //console.log(photo_reference);
           } else {
             console.log('No photos available');
           }
           if (!name) return;
 
-          layer.bindPopup(`<p>${name}</p><p>${adr_address}</p>${createPhotoHtml(photo_reference)}`);
+          const isOpen = isOpenNow(opening_hours);
+          const openStatus = isOpen ? "Open" : "Closed";
+
+          layer.bindPopup(`<p>${name}</p><p>${adr_address}</p><p>Status: ${openStatus}</p>${createPhotoHtml(photo_reference)}`);
         },
       });
     };
+
+
+    const isOpenNow = (opening_hours) => {
+      if (!opening_hours || !opening_hours.periods) return false;
+
+      const now = new Date();
+      const dayOfWeek = now.getDay(); // 0 (Sunday) to 6 (Saturday)
+      const currentTime = now.getHours() * 60 + now.getMinutes(); // current time in minutes
+
+      const openingPeriods = opening_hours.periods.filter(
+          (period) => period.open.day === dayOfWeek
+      );
+
+      for (const period of openingPeriods) {
+        const openingTimeStr = period.open.time;
+        const closingTimeStr = period.close.time;
+
+        const openingTime = [
+          parseInt(openingTimeStr.slice(0, 2), 10),
+          parseInt(openingTimeStr.slice(2), 10),
+        ];
+        const closingTime = [
+          parseInt(closingTimeStr.slice(0, 2), 10),
+          parseInt(closingTimeStr.slice(2), 10),
+        ];
+
+        const openingTimeInMinutes = openingTime[0] * 60 + openingTime[1];
+        const closingTimeInMinutes = closingTime[0] * 60 + closingTime[1];
+
+        if (
+            currentTime >= openingTimeInMinutes &&
+            currentTime <= closingTimeInMinutes
+        ) {
+          return true;
+        }
+      }
+
+      return false;
+    };
+
 
     // Helper function to create photo HTML
     const createPhotoHtml = (photoReference) => {
@@ -78,7 +120,6 @@ function App() {
   }, [])
 
   return (
-
     <div className="App">
       <Sidebar/>
       <Map ref={mapRef} center={[38.62, -90.185]} zoom={12} maxZoom={17} minZoom={11}>
