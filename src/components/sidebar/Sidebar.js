@@ -5,6 +5,7 @@ import WeatherSelect from "./filters/WeatherSelect";
 import React from "react";
 import AccessibilityToggle from "./filters/AccessibilityToggle";
 import StatusToggle from "./filters/StatusToggle";
+import BasicRating from "./filters/BasicRating";
 
 const DrawerHeader = styled('div')(({ theme }) => ({
     display: 'flex',
@@ -15,7 +16,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 }));
 
 const Sidebar = (props) => {
-
+    console.log(props);
     return (
         <Drawer variant="persistent" hideBackdrop={true} open={props.isOpen}>
             <DrawerHeader>
@@ -25,10 +26,11 @@ const Sidebar = (props) => {
                 </IconButton>
             </DrawerHeader>
             <Box sx={{ width: 165, p: 3 }}>
-                <PriceSelect updateMap={props.updateMap} />
-                <WeatherSelect updateMap={props.updateMap} />
-                <AccessibilityToggle updateMap={props.updateMap} />
-                <StatusToggle updateMap={props.updateMap} />
+                <PriceSelect updateMap={props.updateMap} filters={props.filters} />
+                <WeatherSelect updateMap={props.updateMap} filters={props.filters} />
+                <AccessibilityToggle updateMap={props.updateMap} filters={props.filters} />
+                <StatusToggle updateMap={props.updateMap} filters={props.filters} />
+                <BasicRating updateMap={props.updateMap} filters={props.filters} />
             </Box>
         </Drawer>
     );

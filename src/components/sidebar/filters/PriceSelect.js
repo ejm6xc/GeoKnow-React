@@ -7,11 +7,13 @@ import {
 } from '@mui/material';
 import React from 'react';
 
-const PriceSelect = () => {
+const PriceSelect = (props) => {
     const [price, setPrice] = React.useState('');
 
     const handleChange = (event) => {
         setPrice(event.target.value);
+        props.filters.price = event.target.value;
+        props.updateMap(props.filters);
     };
     return (
         <Box sx={{ mt: 5, display: 'flex', alignItems: 'center' }}>
@@ -24,6 +26,7 @@ const PriceSelect = () => {
                     label="Price"
                     onChange={handleChange}
                 >
+                    <MenuItem value={''}>None</MenuItem>
                     <MenuItem value={1}>$</MenuItem>
                     <MenuItem value={2}>$$</MenuItem>
                     <MenuItem value={3}>$$$</MenuItem>

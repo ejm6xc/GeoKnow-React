@@ -7,11 +7,13 @@ import {
 } from '@mui/material';
 import React from 'react';
 
-const WeatherSelect = () => {
+const WeatherSelect = (props) => {
     const [weather, setWeather] = React.useState('');
 
     const handleChange = (event) => {
         setWeather(event.target.value);
+        props.filters.weather = event.target.value;
+        props.updateMap(props.filters);
     };
     return (
         <Box sx={{ mt: 5, display: 'flex', alignItems: 'center' }}>

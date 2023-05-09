@@ -3,7 +3,7 @@ import {AppBar, Toolbar, Typography, Button, Box, IconButton, Menu} from '@mui/m
 import {Link} from 'react-router-dom';
 import Sidebar from "./sidebar/Sidebar";
 
-function TopNavBar() {
+function TopNavBar({updateMap, filters}) {
 
     const [isOpen, setIsOpen] = useState(false);
     return (
@@ -29,7 +29,7 @@ function TopNavBar() {
                     About
                 </Button>
             </Toolbar>
-            <Sidebar {...{isOpen, setIsOpen}} />
+            <Sidebar {...{isOpen, setIsOpen, updateMap, filters}} />
         </AppBar>
     );
 }

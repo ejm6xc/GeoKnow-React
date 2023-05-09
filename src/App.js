@@ -3,13 +3,12 @@ import L from 'leaflet';
 import { Map, TileLayer } from 'react-leaflet';
 import './App.css';
 import 'leaflet/dist/leaflet.css';
-
-import Sidebar from './components/sidebar/Sidebar';
 import cemetery from './geoJson/cemetery.json';
 import museums from './geoJson/museums.json';
 import nationalParks from './geoJson/national parks.json';
 import outdoorActivities from './geoJson/outdoor activities.json';
 import trails from './geoJson/trails.json';
+import TopNavBar from "./components/TopNavBar";
 
 
 delete L.Icon.Default.prototype._getIconUrl;
@@ -26,7 +25,8 @@ function App() {
         price: null,
         weather: null,
         wheelchairAccessible: false,
-        isOpenOnly: false,
+        status: false,
+        rating: null
     });
 
     const updateMap = useCallback((filters) => {
@@ -41,6 +41,7 @@ function App() {
             }
         });
 
+        console.log(filters);
         // Create new layers based on filters
         const parksGeoJson = createGeoJsonLayer(nationalParks, filters);
         const cemeteryGeoJson = createGeoJsonLayer(cemetery, filters);
@@ -56,35 +57,9 @@ function App() {
         trailsGeoJson.addTo(map);
 
         //functions
-        function createGeoJsonLayer(geoJsonData, filters) {
+        function createGeoJsonLayer(geoJsonData) {
             return new L.GeoJSON(geoJsonData, {
-                filter: function (feature) {
-                    const { properties = {} } = feature;
-                    const {
-                        price_level,
-                        wheelchair_accessible_entrance,
-                        opening_hours
-                    } = properties;
-
-                    // Filter by price
-                    if (filters.price !== null && price_level !== filters.price) {
-                        return false;
-                    }
-
-                    // Filter by wheelchair accessibility
-                    if (filters.wheelchairAccessible && !wheelchair_accessible_entrance) {
-                        return false;
-                    }
-
-                    // Filter by open status
-                    if (filters.isOpenOnly && !isOpenNow(opening_hours)) {
-                        return false;
-                    }
-
-                    // Add more filter conditions here if needed
-
-                    return true;
-                },
+                pointToLayer: filterLayers,
                 onEachFeature: function (feature, layer) {
                     const { properties = {} } = feature;
                     const {
@@ -97,8 +72,10 @@ function App() {
                         website,
                         wheelchair_accessible_entrance,
                         url,
+                        rating
                     } = properties;
 
+                    console.log(rating);
                     let photo_reference = null;
                     if (photos && photos.length > 0) {
                         photo_reference = photos[0].photo_reference;
@@ -116,17 +93,48 @@ function App() {
                         `${formatted_phone_number}<br/>` +
                         `Website: <a href="${website}">${name}</a><br/>` +
                         `<a href="${url}">View on Google Maps</a><br/>` +
-                        `Wheelchair Accessible: ${replaceTrueFalseWithYesNo(
-                            wheelchair_accessible_entrance
-                        )}<br/>` +
+                        `Wheelchair Accessible: ${replaceTrueFalseWithYesNo(wheelchair_accessible_entrance)}<br/>` +
                         "$".repeat(Number(price_level)) + `<br/>` +
+                        `Rating: ${generateStarRatingHTML(rating)}<br/>` +
                         `Status: ${openStatus}<br/>` +
                         `${createPhotoHtml(photo_reference)}`
                     );
                 },
             });
         }
+        function filterLayers(feature, latlng){
+
+            // Filter by price
+
+            if (filters.price !== null && filters.price !== '' && feature.properties.price_level !== filters.price) {
+                return false;
+            }
+
+
+            // Filter by wheelchair accessibility
+            if (filters.wheelchairAccessible && !feature.properties.wheelchair_accessible_entrance) {
+                return false;
+            }
+
+            // Filter by open status
+            if (filters.status && !isOpenNow(feature.properties.opening_hours)) {
+                return false;
+            }
+            //Filter by weather
+
+            //Filter by rating
+            //console.log(feature.properties.name +': ' + filters.rating);
+            if(feature.properties.rating === undefined || (filters.rating !== null && feature.properties.rating < filters.rating)){
+                return false;
+            }
+            // Add more filter conditions here if needed
+
+
+            return L.marker(latlng);
+
+        }
     }, []);
+
 
     useEffect(() => {
         const { current = {} } = mapRef;
@@ -135,6 +143,14 @@ function App() {
         updateMap(filters);
     }, [filters, updateMap]);
 
+    function generateStarRatingHTML(rating, maxRating = 5) {
+        if (rating === undefined) return 'no Rating data';
+        let starsHTML = '';
+        for (let i = 1; i <= maxRating; i++) {
+            starsHTML += `<span style="color:${i <= rating ? 'gold' : 'lightgray'}">★</span>`;
+        }
+        return starsHTML;
+    }
     function replaceTrueFalseWithYesNo(bool) {
         if (bool === true) {
             return 'yes';
@@ -194,7 +210,7 @@ function App() {
 
     return (
         <div className="App">
-            <Sidebar updateMap={updateMap} />
+            <TopNavBar updateMap={updateMap} filters={filters}/>
             <Map
                 ref={mapRef}
                 center={[38.62, -90.185]}
