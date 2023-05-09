@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../geoknow-please.iml" filepath="$PROJECT_DIR$/../geoknow-please.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../geoKnow.iml" filepath="$PROJECT_DIR$/../geoKnow.iml" />
     </modules>
   </component>
 </project>

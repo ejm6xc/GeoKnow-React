@@ -1,12 +1,25 @@
-import React from 'react';
-import { AppBar, Toolbar, Typography, Button } from '@mui/material';
-import { Link } from 'react-router-dom';
+import React, {useState} from 'react';
+import {AppBar, Toolbar, Typography, Button, Box, IconButton, Menu} from '@mui/material';
+import {Link} from 'react-router-dom';
+import Sidebar from "./sidebar/Sidebar";
 
 function TopNavBar() {
+
+    const [isOpen, setIsOpen] = useState(false);
     return (
         <AppBar position="static">
             <Toolbar>
-                <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                <Box sx={{mr: 2}}>
+                    <IconButton
+                        size="small"
+                        color="inherit"
+                        onClick={() => setIsOpen(true)}
+                    >
+                        Filters
+                        <Menu open={false}/>
+                    </IconButton>
+                </Box>
+                <Typography variant="h6" sx={{flexGrow: 1}}>
                     Where In The Lou
                 </Typography>
                 <Button color="inherit" component={Link} to="/">
@@ -16,6 +29,7 @@ function TopNavBar() {
                     About
                 </Button>
             </Toolbar>
+            <Sidebar {...{isOpen, setIsOpen}} />
         </AppBar>
     );
 }
