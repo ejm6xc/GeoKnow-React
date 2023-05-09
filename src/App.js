@@ -8,6 +8,7 @@ import museums from './geoJson/museums.json';
 import nationalParks from './geoJson/national parks.json';
 import outdoorActivities from './geoJson/outdoor activities.json';
 import trails from './geoJson/trails.json';
+import restaurants from './geoJson/restaurants.json';
 import TopNavBar from "./components/TopNavBar";
 
 
@@ -26,8 +27,34 @@ function App() {
         weather: null,
         wheelchairAccessible: false,
         status: false,
-        rating: null
+        rating: null,
+        park: false,
+        point_of_interest: false,
+        establishment: false,
+        tourist_attraction: false,
+        museum: false,
+        travel_agency: false,
+        cemetery: false,
+        general_contractor: false,
+        funeral_home: false,
+        amusement_park: false,
+        art_gallery: false,
+        food: false,
+        local_government_office: false,
+        store: false,
+        clothing_store: false,
+        zoo: false,
+        restaurant: false,
+        aquarium: false,
+        stadium: false,
+        parking: false,
+        bar: false,
+        casino: false,
+        lodging: false,
+        natural_feature: false,
+        meal_delivery: false
     });
+    let uniqueTypes = [];
 
     const updateMap = useCallback((filters) => {
         setFilters(filters);
@@ -41,13 +68,14 @@ function App() {
             }
         });
 
-        console.log(filters);
+        //console.log(filters);
         // Create new layers based on filters
         const parksGeoJson = createGeoJsonLayer(nationalParks, filters);
         const cemeteryGeoJson = createGeoJsonLayer(cemetery, filters);
         const museumsGeoJson = createGeoJsonLayer(museums, filters);
         const outdoorActivitiesGeoJson = createGeoJsonLayer(outdoorActivities, filters);
         const trailsGeoJson = createGeoJsonLayer(trails, filters);
+        const restaurantsGeoJson = createGeoJsonLayer(restaurants, filters);
 
         // Add new layers to the map
         parksGeoJson.addTo(map);
@@ -55,7 +83,9 @@ function App() {
         museumsGeoJson.addTo(map);
         outdoorActivitiesGeoJson.addTo(map);
         trailsGeoJson.addTo(map);
-
+        restaurantsGeoJson.addTo(map);
+        //I used the below console log to get the list of types from all the json
+        //console.log(uniqueTypes);
         //functions
         function createGeoJsonLayer(geoJsonData) {
             return new L.GeoJSON(geoJsonData, {
@@ -72,15 +102,20 @@ function App() {
                         website,
                         wheelchair_accessible_entrance,
                         url,
-                        rating
+                        rating,
+                        types = []
                     } = properties;
-
-                    console.log(rating);
+                    for (let i = 0; i < types.length; i++) {
+                        if (!uniqueTypes.includes(types[i])) {
+                            uniqueTypes.push(types[i]);
+                        }
+                    }
+                    //console.log(rating);
                     let photo_reference = null;
                     if (photos && photos.length > 0) {
                         photo_reference = photos[0].photo_reference;
                     } else {
-                        console.log("No photos available");
+                        //console.log("No photos available");
                     }
                     if (!name) return;
 
@@ -127,13 +162,24 @@ function App() {
             if(feature.properties.rating === undefined || (filters.rating !== null && feature.properties.rating < filters.rating)){
                 return false;
             }
+
+            // Filter by types
+            const types = ['park', 'point_of_interest', 'establishment', 'tourist_attraction', 'museum', 'travel_agency',
+                'cemetery', 'general_contractor', 'funeral_home', 'amusement_park', 'art_gallery', 'food',
+                'local_government_office', 'store', 'clothing_store', 'zoo', 'restaurant', 'aquarium', 'stadium',
+                'parking', 'bar', 'casino', 'lodging', 'natural_feature', 'meal_delivery'];
+            for (const type of types) {
+                if (filters[type] && !feature.properties.types.includes(type)) {
+                    return false;
+                }
+            }
             // Add more filter conditions here if needed
 
 
             return L.marker(latlng);
 
         }
-    }, []);
+    }, [uniqueTypes]);
 
 
     useEffect(() => {

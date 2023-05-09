@@ -4,11 +4,11 @@ import Rating from '@mui/material/Rating';
 import Typography from '@mui/material/Typography';
 
 export default function BasicRating(props) {
-    const [value, setValue] = React.useState(false);
+    const [value, setValue] = React.useState(null);
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
-        props.filters.rating = event.target.value;
+        props.filters.rating = newValue;
         props.updateMap(props.filters);
     };
     return (
