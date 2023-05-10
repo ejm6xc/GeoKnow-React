@@ -24,7 +24,6 @@ function App() {
     const mapRef = useRef();
     const [filters, setFilters] = React.useState({
         price: null,
-        weather: null,
         wheelchairAccessible: false,
         status: false,
         rating: null,
@@ -155,7 +154,6 @@ function App() {
             if (filters.status && !isOpenNow(feature.properties.opening_hours)) {
                 return false;
             }
-            //Filter by weather
 
             //Filter by rating
             //console.log(feature.properties.name +': ' + filters.rating);
