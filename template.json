@@ -1,0 +1,390 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "sites_whereinthelou_name": {
+            "defaultValue": "whereinthelou",
+            "type": "String"
+        },
+        "serverfarms_ASP_cloudshellstorageeastus_a6f0_externalid": {
+            "defaultValue": "/subscriptions/dc375c36-daf1-4e89-8b6d-71e3596320c7/resourceGroups/cloud-shell-storage-eastus/providers/Microsoft.Web/serverfarms/ASP-cloudshellstorageeastus-a6f0",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2022-09-01",
+            "name": "[parameters('sites_whereinthelou_name')]",
+            "location": "Central US",
+            "tags": {
+                "ms-resource-usage": "azure-cloud-shell"
+            },
+            "kind": "app,linux",
+            "properties": {
+                "enabled": true,
+                "hostNameSslStates": [
+                    {
+                        "name": "[concat(parameters('sites_whereinthelou_name'), '.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Standard"
+                    },
+                    {
+                        "name": "[concat(parameters('sites_whereinthelou_name'), '.scm.azurewebsites.net')]",
+                        "sslState": "Disabled",
+                        "hostType": "Repository"
+                    }
+                ],
+                "serverFarmId": "[parameters('serverfarms_ASP_cloudshellstorageeastus_a6f0_externalid')]",
+                "reserved": true,
+                "isXenon": false,
+                "hyperV": false,
+                "vnetRouteAllEnabled": false,
+                "vnetImagePullEnabled": false,
+                "vnetContentShareEnabled": false,
+                "siteConfig": {
+                    "numberOfWorkers": 1,
+                    "linuxFxVersion": "NODE|18-lts",
+                    "acrUseManagedIdentityCreds": false,
+                    "alwaysOn": false,
+                    "http20Enabled": false,
+                    "functionAppScaleLimit": 0,
+                    "minimumElasticInstanceCount": 0
+                },
+                "scmSiteAlsoStopped": false,
+                "clientAffinityEnabled": false,
+                "clientCertEnabled": false,
+                "clientCertMode": "Required",
+                "hostNamesDisabled": false,
+                "customDomainVerificationId": "3A2EC802BBA2DCDEF3D31D2874DBC73B209CB9EDF70342AB16181A2F14F8DC6E",
+                "containerSize": 0,
+                "dailyMemoryTimeQuota": 0,
+                "httpsOnly": true,
+                "redundancyMode": "None",
+                "publicNetworkAccess": "Enabled",
+                "storageAccountRequired": false,
+                "keyVaultReferenceIdentity": "SystemAssigned"
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_whereinthelou_name'), '/ftp')]",
+            "location": "Central US",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_whereinthelou_name'))]"
+            ],
+            "tags": {
+                "ms-resource-usage": "azure-cloud-shell"
+            },
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/basicPublishingCredentialsPolicies",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_whereinthelou_name'), '/scm')]",
+            "location": "Central US",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_whereinthelou_name'))]"
+            ],
+            "tags": {
+                "ms-resource-usage": "azure-cloud-shell"
+            },
+            "properties": {
+                "allow": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/config",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_whereinthelou_name'), '/web')]",
+            "location": "Central US",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_whereinthelou_name'))]"
+            ],
+            "tags": {
+                "ms-resource-usage": "azure-cloud-shell"
+            },
+            "properties": {
+                "numberOfWorkers": 1,
+                "defaultDocuments": [
+                    "Default.htm",
+                    "Default.html",
+                    "Default.asp",
+                    "index.htm",
+                    "index.html",
+                    "iisstart.htm",
+                    "default.aspx",
+                    "index.php",
+                    "hostingstart.html"
+                ],
+                "netFrameworkVersion": "v4.0",
+                "linuxFxVersion": "NODE|18-lts",
+                "requestTracingEnabled": false,
+                "remoteDebuggingEnabled": false,
+                "remoteDebuggingVersion": "VS2019",
+                "httpLoggingEnabled": false,
+                "acrUseManagedIdentityCreds": false,
+                "logsDirectorySizeLimit": 35,
+                "detailedErrorLoggingEnabled": false,
+                "publishingUsername": "$whereinthelou",
+                "scmType": "GitHub",
+                "use32BitWorkerProcess": true,
+                "webSocketsEnabled": false,
+                "alwaysOn": false,
+                "appCommandLine": "pm2 serve /home/site/wwwroot/build --no-daemon --spa",
+                "managedPipelineMode": "Integrated",
+                "virtualApplications": [
+                    {
+                        "virtualPath": "/",
+                        "physicalPath": "site\\wwwroot",
+                        "preloadEnabled": false
+                    }
+                ],
+                "loadBalancing": "LeastRequests",
+                "experiments": {
+                    "rampUpRules": []
+                },
+                "autoHealEnabled": false,
+                "vnetRouteAllEnabled": false,
+                "vnetPrivatePortsCount": 0,
+                "publicNetworkAccess": "Enabled",
+                "localMySqlEnabled": false,
+                "ipSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 2147483647,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictions": [
+                    {
+                        "ipAddress": "Any",
+                        "action": "Allow",
+                        "priority": 2147483647,
+                        "name": "Allow all",
+                        "description": "Allow all access"
+                    }
+                ],
+                "scmIpSecurityRestrictionsUseMain": false,
+                "http20Enabled": false,
+                "minTlsVersion": "1.2",
+                "scmMinTlsVersion": "1.2",
+                "ftpsState": "FtpsOnly",
+                "preWarmedInstanceCount": 0,
+                "elasticWebAppScaleLimit": 0,
+                "functionsRuntimeScaleMonitoringEnabled": false,
+                "minimumElasticInstanceCount": 0,
+                "azureStorageAccounts": {}
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_whereinthelou_name'), '/0aa7d48c-4a0e-40b3-bcef-035f2d164efc')]",
+            "location": "Central US",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_whereinthelou_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "GITHUB_ZIP_DEPLOY",
+                "message": "{\"type\":\"deployment\",\"sha\":\"748652f9c4885849831da9199ed5330b7b9e85ab\",\"repoName\":\"ejm6xc/GeoKnow-React\",\"actor\":\"ejm6xc\",\"slotName\":\"Production\",\"commitMessage\":\"fixed filtering issues. also versioning scripts used to create JSON files from google. Added more filters and any logic needed to get them to work\"}",
+                "start_time": "2023-05-09T15:10:30.5656298Z",
+                "end_time": "2023-05-09T15:34:43.9017591Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_whereinthelou_name'), '/2162593d-cc7c-4ae7-ad03-2815c6e138f4')]",
+            "location": "Central US",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_whereinthelou_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "GITHUB_ZIP_DEPLOY",
+                "message": "{\"type\":\"deployment\",\"sha\":\"8d59a78669fe0b00291f79d69fa5a23f4dd91d54\",\"repoName\":\"ejm6xc/GeoKnow-React\",\"actor\":\"ejm6xc\",\"slotName\":\"Production\",\"commitMessage\":\"adding restaurants layer. Already added the json and money filter, just forgot to add the layer...\\nFixed a big with the rating not unfiltering when you deselect the star. removed a bunch of console logging we don't want in \\\"production\\\". Added a butt ton of filters using the location type data from the json\"}",
+                "start_time": "2023-05-10T01:02:40.5742158Z",
+                "end_time": "2023-05-10T01:22:50.5089501Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_whereinthelou_name'), '/4529c53b-ef6b-4a3b-bc42-5aa19ae38097')]",
+            "location": "Central US",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_whereinthelou_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "GITHUB_ZIP_DEPLOY",
+                "message": "{\"type\":\"deployment\",\"sha\":\"a68c82d61397f21013ac82d6ac77779a0d57ebd8\",\"repoName\":\"ejm6xc/GeoKnow-React\",\"actor\":\"ejm6xc\",\"slotName\":\"Production\",\"commitMessage\":\"NOJIRA - fixing some nonsense\"}",
+                "start_time": "2023-04-14T00:56:26.8837908Z",
+                "end_time": "2023-04-14T01:04:56.0672635Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_whereinthelou_name'), '/59b7ee4b-7f2e-437d-821a-2bab5900b893')]",
+            "location": "Central US",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_whereinthelou_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "GITHUB_ZIP_DEPLOY",
+                "message": "{\"type\":\"deployment\",\"sha\":\"2f4415a809c9d235c21a018b28184e58efbe2b29\",\"repoName\":\"ejm6xc/GeoKnow-React\",\"actor\":\"ejm6xc\",\"slotName\":\"Production\",\"commitMessage\":\"added/updated some libraries used for UI stuff\"}",
+                "start_time": "2023-05-08T17:51:04.2730671Z",
+                "end_time": "2023-05-08T18:02:43.4644673Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_whereinthelou_name'), '/6d75d353-26e1-4312-b64a-80b6856ef064')]",
+            "location": "Central US",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_whereinthelou_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "GITHUB_ZIP_DEPLOY",
+                "message": "{\"type\":\"deployment\",\"sha\":\"e14cabd6cd8cac7d8f04c5646442fa1069f5212a\",\"repoName\":\"ejm6xc/GeoKnow-React\",\"actor\":\"ejm6xc\",\"slotName\":\"Production\",\"commitMessage\":\"yarn :(\"}",
+                "start_time": "2023-04-07T02:59:34.504112Z",
+                "end_time": "2023-04-07T03:11:24.3762352Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_whereinthelou_name'), '/a68c82d61397f21013ac82d6ac77779a0d57ebd8')]",
+            "location": "Central US",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_whereinthelou_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "SoulOfAton@users.noreply.github.com",
+                "author": "SoulOfAton",
+                "deployer": "GitHub",
+                "message": "NOJIRA - fixing some nonsense",
+                "start_time": "2023-04-14T00:17:40.6441736Z",
+                "end_time": "2023-04-14T00:19:56.7710154Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_whereinthelou_name'), '/a84a7257-7787-4e22-8cba-3bf1ef77d778')]",
+            "location": "Central US",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_whereinthelou_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "GITHUB_ZIP_DEPLOY",
+                "message": "{\"type\":\"deployment\",\"sha\":\"8b174b275af79864d44b8385725bd5a76f743ab8\",\"repoName\":\"ejm6xc/GeoKnow-React\",\"actor\":\"IsaacHodg2\",\"slotName\":\"Production\",\"commitMessage\":\"Added a simple sidebar and some radio buttons.\"}",
+                "start_time": "2023-04-20T09:34:51.821003Z",
+                "end_time": "2023-04-20T09:42:49.2703587Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_whereinthelou_name'), '/b0ad09ef-ca6c-4100-a197-477d80c7a178')]",
+            "location": "Central US",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_whereinthelou_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "GITHUB_ZIP_DEPLOY",
+                "message": "{\"type\":\"deployment\",\"sha\":\"1cd3c3970bdcdb67ea49b73dc12c59d026343286\",\"repoName\":\"ejm6xc/GeoKnow-React\",\"actor\":\"ejm6xc\",\"slotName\":\"Production\",\"commitMessage\":\"added....all kinds of stuff. Material UI updates, more data from the json. The filters are broken right now, just pushing and moving to my other computer\"}",
+                "start_time": "2023-05-09T03:18:21.2463813Z",
+                "end_time": "2023-05-09T03:38:25.9690772Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_whereinthelou_name'), '/c43c43f5-9577-4b6e-b743-aef68e19b840')]",
+            "location": "Central US",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_whereinthelou_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "GITHUB_ZIP_DEPLOY",
+                "message": "{\"type\":\"deployment\",\"sha\":\"3e28a3f3b8625ae6f641be5f91cb6764fb1991d8\",\"repoName\":\"ejm6xc/GeoKnow-React\",\"actor\":\"ejm6xc\",\"slotName\":\"Production\",\"commitMessage\":\"removed weather filter and its uses. Also removed an unused StarRating.js Component.\"}",
+                "start_time": "2023-05-10T21:43:41.3454206Z",
+                "end_time": "2023-05-10T22:03:50.678346Z",
+                "active": true
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/deployments",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_whereinthelou_name'), '/d19f9f1e-00e7-4ef7-b703-c7034fb00f9a')]",
+            "location": "Central US",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_whereinthelou_name'))]"
+            ],
+            "properties": {
+                "status": 4,
+                "author_email": "N/A",
+                "author": "N/A",
+                "deployer": "GITHUB_ZIP_DEPLOY",
+                "message": "{\"type\":\"deployment\",\"sha\":\"05beb8872c07060f93052fb16855238931a11998\",\"repoName\":\"ejm6xc/GeoKnow-React\",\"actor\":\"ejm6xc\",\"slotName\":\"Production\",\"commitMessage\":\"added all the geojson. added an About.js page. Implemented React Router for page navigation. Parsed some of the data out of the geoJson and displayed it in the popup markers, but we still need more. Added a topNav bar. Updated UI to use material-UI library, updated a number of dependencies. Removed template json. Changed locked map to be drag and zoomable, but limited minZoom/maxZoom to keep people from zooming out to far\"}",
+                "start_time": "2023-05-05T06:48:13.5792691Z",
+                "end_time": "2023-05-05T06:59:54.7268726Z",
+                "active": false
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites/hostNameBindings",
+            "apiVersion": "2022-09-01",
+            "name": "[concat(parameters('sites_whereinthelou_name'), '/', parameters('sites_whereinthelou_name'), '.azurewebsites.net')]",
+            "location": "Central US",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', parameters('sites_whereinthelou_name'))]"
+            ],
+            "properties": {
+                "siteName": "whereinthelou",
+                "hostNameType": "Verified"
+            }
+        }
+    ]
+}
